@@ -21,13 +21,15 @@ See [System Architecture](docs/ARCHITECTURE.md) and [Project Report Summary](doc
 
     qnx_source/
       client/
-        Makefile
         .project
+        .cproject
+        Makefile
         src/client.c
         src/protocol.h
       server/
-        Makefile
         .project
+        .cproject
+        Makefile
         src/server.c
         src/protocol.h
         src/sha256.c
