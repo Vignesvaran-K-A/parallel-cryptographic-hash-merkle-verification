@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470" role="img" aria-labelledby="title desc">
+  <title id="title">Corrupted firmware verification result</title>
+  <desc id="desc">Ground station test result reconstructed from the report: status CORRUPTED, mask 4680, with blocks 3, 6, 9 and 12 marked red.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1224"/><stop offset="1" stop-color="#172746"/></linearGradient>
+  </defs>
+  <rect width="900" height="470" rx="18" fill="url(#bg)"/>
+  <text x="34" y="42" fill="#e8eefb" font-family="Arial, sans-serif" font-size="24" font-weight="700">GROUND STATION · FIRMWARE INTEGRITY TEST</text>
+  <text x="34" y="72" fill="#9fb0cc" font-family="Arial, sans-serif" font-size="16">Test 2 — Blocks 3, 6, 9 and 12 intentionally marked</text>
+  <rect x="34" y="100" width="832" height="100" rx="12" fill="#0f1d34" stroke="#2e4567"/>
+  <text x="58" y="136" fill="#c8d4e9" font-family="Arial, sans-serif" font-size="15">Integrity Status</text>
+  <rect x="58" y="150" width="245" height="35" rx="17" fill="#d83a4a"/>
+  <text x="180" y="174" fill="#ffffff" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700">CORRUPTED</text>
+  <text x="342" y="137" fill="#c8d4e9" font-family="Arial, sans-serif" font-size="15">Corruption Mask</text>
+  <text x="342" y="174" fill="#ffffff" font-family="Arial, sans-serif" font-size="28" font-weight="700">4680</text>
+  <text x="480" y="137" fill="#c8d4e9" font-family="Arial, sans-serif" font-size="15">Blocks flagged</text>
+  <text x="480" y="174" fill="#ffffff" font-family="Arial, sans-serif" font-size="28" font-weight="700">4 / 16</text>
+  <text x="34" y="239" fill="#e8eefb" font-family="Arial, sans-serif" font-size="18" font-weight="700">Block-level result</text>
+  <text x="34" y="262" fill="#9fb0cc" font-family="Arial, sans-serif" font-size="14">Red blocks are flagged by the selected fault-injection test.</text>
+  <rect x="48" y="284" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="90" y="311" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">0</text>
+  <rect x="151" y="284" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="193" y="311" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">1</text>
+  <rect x="254" y="284" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="296" y="311" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">2</text>
+  <rect x="357" y="284" width="84" height="43" rx="7" fill="#e44955" stroke="#ff9ca4" stroke-width="1.5"/><text x="399" y="311" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="15" font-weight="700">3</text>
+  <rect x="460" y="284" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="502" y="311" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">4</text>
+  <rect x="563" y="284" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="605" y="311" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">5</text>
+  <rect x="666" y="284" width="84" height="43" rx="7" fill="#e44955" stroke="#ff9ca4" stroke-width="1.5"/><text x="708" y="311" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="15" font-weight="700">6</text>
+  <rect x="769" y="284" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="811" y="311" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">7</text>
+  <rect x="48" y="350" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="90" y="377" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">8</text>
+  <rect x="151" y="350" width="84" height="43" rx="7" fill="#e44955" stroke="#ff9ca4" stroke-width="1.5"/><text x="193" y="377" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="15" font-weight="700">9</text>
+  <rect x="254" y="350" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="296" y="377" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">10</text>
+  <rect x="357" y="350" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="399" y="377" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">11</text>
+  <rect x="460" y="350" width="84" height="43" rx="7" fill="#e44955" stroke="#ff9ca4" stroke-width="1.5"/><text x="502" y="377" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="15" font-weight="700">12</text>
+  <rect x="563" y="350" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="605" y="377" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">13</text>
+  <rect x="666" y="350" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="708" y="377" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">14</text>
+  <rect x="769" y="350" width="84" height="43" rx="7" fill="#27b85d" stroke="#85e9a5" stroke-width="1.5"/><text x="811" y="377" text-anchor="middle" fill="#052814" font-family="Arial, sans-serif" font-size="15" font-weight="700">15</text>
+  <text x="34" y="447" fill="#9fb0cc" font-family="Arial, sans-serif" font-size="13">Reported in the project report, Figure 4.2 — CORRUPTED, mask 4680.</text>
+</svg>
