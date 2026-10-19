@@ -17,7 +17,25 @@ The host GUI prepares the image and transfers it to the QNX target over SSH. The
 
 See [System Architecture](docs/ARCHITECTURE.md) and [Project Report Summary](docs/PROJECT_REPORT.md).
 
-## Repository layout
+## Test Results
+
+The following illustrations are reconstructed from the results shown in the submitted project report. See [test documentation](tests/README.md) for the test cases and result-mask calculations.
+
+### Intact firmware — VALID, mask 0
+
+With no fault-injection blocks selected, the report records a valid image and a zero corruption mask.
+
+![Intact firmware result](tests/valid_firmware_result.svg)
+
+### Corrupted firmware — blocks 3, 6, 9 and 12, mask 4680
+
+The report records a corrupted status when blocks 3, 6, 9 and 12 are marked.
+
+![Corrupted firmware result](tests/corrupted_firmware_blocks_3_6_9_12.svg)
+
+The report also records a mask of 33825 for the example with blocks 0, 5, 10 and 15 marked. These are values documented in the report, not fresh test runs performed during this repository update.
+
+## Repository Layout
 
     qnx_source/
       client/
@@ -41,8 +59,12 @@ See [System Architecture](docs/ARCHITECTURE.md) and [Project Report Summary](doc
     docs/
       ARCHITECTURE.md
       PROJECT_REPORT.md
+    tests/
+      README.md
+      valid_firmware_result.svg
+      corrupted_firmware_blocks_3_6_9_12.svg
 
-## Build the QNX programs
+## Build the QNX Programs
 
 A QNX Software Development Platform (SDP) / Momentics environment with the QNX compiler is required. These programs are targeted by the supplied Makefiles at aarch64le.
 
@@ -60,7 +82,7 @@ The expected output paths are under each project's build/aarch64le-debug directo
 
 Copy the resulting merkle-client and merkle-server executables to the QNX target. Start merkle-server first so it can register the service name; then launch the ground station. The GUI expects the client executable to already be available at /tmp/merkle-client on the target.
 
-## Run the host ground station
+## Run the Host Ground Station
 
 Requirements: Python 3, Tkinter, an SSH-accessible QNX target, and Paramiko.
 
@@ -79,19 +101,7 @@ Change the host and username to match your target. The password is read from the
 
 The GUI generates a 64 KiB image filled with 0x01. Each selected 4 KiB block is marked by changing its first byte to 0xFF. The GUI streams the image to /tmp/update.bin over SSH and runs the client, then parses the returned JSON and displays the result.
 
-## Recorded test results
-
-The submitted project report records these representative results:
-
-| Scenario | Expected / recorded result |
-|---|---|
-| No blocks changed | VALID, mask 0 |
-| Blocks 3, 6, 9, and 12 marked | CORRUPTED, mask 4680 |
-| Blocks 0, 5, 10, and 15 marked | Mask 33825 |
-
-These are report-recorded results, not tests executed by GitHub or this documentation update.
-
-## Current implementation limitations
+## Current Implementation Limitations
 
 - The corruption mask identifies blocks by checking the first byte of each block against the 0x01 test pattern. Changes elsewhere in a block may cause a root mismatch without setting the corresponding mask bit.
 - Header metadata fields are not fully populated or validated.
