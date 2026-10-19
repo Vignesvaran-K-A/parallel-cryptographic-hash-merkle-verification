@@ -1,124 +1,100 @@
 /*
- * Parallel Cryptographic Hash & Merkle Tree Verification Engine
- * QNX Neutrino RTOS client.
- *
- * Source: project/merkle-client/src/client.c from the submitted project archive.
- * The client reads the firmware image, connects to the named server service,
- * sends the request and payload, and receives the verification result.
+ * ===========================================================================
+ * Project Title      : Parallel Cryptographic Hash & Merkle Tree Verification Engine (QNX Neutrino RTOS)
+ * File               : client.c (merkle-client)
+ * Brief Note on Project :
+ *     A zero-touch OTA firmware-integrity verifier for a Raspberry Pi 4
+ *     running the QNX Neutrino microkernel. A 64 KB firmware image is split
+ *     into sixteen 4 KB blocks, hashed with SHA-256 by four parallel worker threads,
+ *     folded into a Merkle tree and compared with a stored golden
+ *     root. The verdict and a 16-bit corruption mask are returned to the
+ *     host laptop as JSON for display on a live dashboard.
+ *     This file: QNX client: loads update.bin, sends it to the server, waits for
+ *                the pulse and prints the JSON verdict.
+ * Team Members       : K A Vignesvaran   - CB.EN.U4ELC23021
+ *                      Kiruthick Pranav  - CB.EN.U4ELC23023
+ *                      Vidhyarth S E     - CB.EN.U4ELC23057
+ * Course             : 26ELC331 Real Time Operating System using QNX
+ * Date of Evaluation : 17 October 2026
+ * ===========================================================================
  */
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/neutrino.h>
-#include <sys/iomsg.h>
-#include <sys/netmgr.h>
 #include <sys/dispatch.h>
-#include <sys/siginfo.h>
-#include "../common/protocol.h"
+#include "protocol.h"
+
+static uint8_t firmware_data[FIRMWARE_PAYLOAD_SIZE];
 
 int main(int argc, char *argv[]) {
-    FILE *fp = NULL;
-    static uint8_t firmware[FIRMWARE_PAYLOAD_SIZE];
-    int chid = -1, coid_local = -1, coid_server = -1;
-    struct _pulse pulse;
-    struct sigevent event;
-    merkle_request_header_t header;
+    FILE *fp;
+    int chid, coid_local, server_coid;
+    merkle_msg_header_t header;
+    struct sched_param param;
+    int policy;
+    iov_t send_iov[2];
     merkle_reply_ack_t reply;
-    struct iovec send_iov[2];
-    int status;
-    uint32_t result_word = 0;
-    uint32_t corrupt_mask = 0;
-    int is_valid = 0;
+    iov_t recv_iov[1];
+    struct _pulse pulse;
+    int rcvid;
+    uint32_t result_val, corrupt_mask;
+    int is_valid;
 
     if (argc < 2) {
-        printf("{\"status\":\"ERROR\",\"message\":\"No firmware file provided\"}\n");
+        printf("{\"status\": \"ERROR\", \"message\": \"No firmware file provided\"}\n");
         return EXIT_FAILURE;
     }
 
     fp = fopen(argv[1], "rb");
     if (!fp) {
-        printf("{\"status\":\"ERROR\",\"message\":\"Failed to open firmware file\"}\n");
+        printf("{\"status\": \"ERROR\", \"message\": \"Failed to open file\"}\n");
         return EXIT_FAILURE;
     }
-    if (fread(firmware, 1, sizeof(firmware), fp) != sizeof(firmware)) {
-        fclose(fp);
-        printf("{\"status\":\"ERROR\",\"message\":\"Firmware must be exactly 64 KB\"}\n");
-        return EXIT_FAILURE;
-    }
+    fread(firmware_data, 1, FIRMWARE_PAYLOAD_SIZE, fp);
     fclose(fp);
 
     chid = ChannelCreate(0);
-    if (chid == -1) {
-        perror("ChannelCreate");
-        return EXIT_FAILURE;
-    }
-    coid_local = ConnectAttach(ND_LOCAL_NODE, 0, chid, _NTO_SIDE_CHANNEL, 0);
-    if (coid_local == -1) {
-        perror("ConnectAttach");
-        ChannelDestroy(chid);
-        return EXIT_FAILURE;
-    }
-    coid_server = name_open(ATTACH_POINT, 0);
-    if (coid_server == -1) {
-        perror("name_open");
-        ConnectDetach(coid_local);
-        ChannelDestroy(chid);
+    coid_local = ConnectAttach(0, 0, chid, _NTO_SIDE_CHANNEL, 0);
+    server_coid = name_open(ATTACH_POINT, 0);
+
+    if (server_coid == -1) {
+        printf("{\"status\": \"ERROR\", \"message\": \"Server not running\"}\n");
         return EXIT_FAILURE;
     }
 
     memset(&header, 0, sizeof(header));
-    header.msg_type = MERKLE_VERIFY_MSG;
-    SIGEV_PULSE_INIT(&event, coid_local, SIGEV_PULSE_PRIO_INHERIT,
-                     MERKLE_PULSE_CODE, 0);
-    SIGEV_MAKE_UPDATEABLE(&event);
-    if (MsgRegisterEvent(&event, coid_server) == -1) {
-        perror("MsgRegisterEvent");
-        name_close(coid_server);
-        ConnectDetach(coid_local);
-        ChannelDestroy(chid);
-        return EXIT_FAILURE;
-    }
-    header.event = event;
+    header.msg_type = MERKLE_MSG_TYPE_VERIFY;
+
+    pthread_getschedparam(pthread_self(), &policy, &param);
+
+    SIGEV_PULSE_INIT(&header.event, coid_local, param.sched_priority, MERKLE_PULSE_CODE, 0);
+    SIGEV_MAKE_UPDATEABLE(&header.event);
+    MsgRegisterEvent(&header.event, server_coid);
 
     SETIOV(&send_iov[0], &header, sizeof(header));
-    SETIOV(&send_iov[1], firmware, sizeof(firmware));
-    status = MsgSendv(coid_server, send_iov, 2, &reply, sizeof(reply));
-    if (status == -1) {
-        perror("MsgSendv");
-        MsgUnregisterEvent(&event, coid_server);
-        name_close(coid_server);
-        ConnectDetach(coid_local);
-        ChannelDestroy(chid);
-        return EXIT_FAILURE;
-    }
+    SETIOV(&send_iov[1], firmware_data, FIRMWARE_PAYLOAD_SIZE);
 
-    status = MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL);
-    if (status == -1) {
-        perror("MsgReceivePulse");
-        MsgUnregisterEvent(&event, coid_server);
-        name_close(coid_server);
-        ConnectDetach(coid_local);
-        ChannelDestroy(chid);
-        return EXIT_FAILURE;
-    }
+    SETIOV(&recv_iov[0], &reply, sizeof(reply));
 
-    if (pulse.code == MERKLE_PULSE_CODE) {
-        result_word = (uint32_t)pulse.value.sival_int;
-        is_valid = (result_word & STATUS_VALID_BIT) != 0;
-        corrupt_mask = result_word & CORRUPT_MASK_BITS;
-        printf("{\"status\":\"%s\",\"mask\":%u}\n",
+    MsgSendv(server_coid, send_iov, 2, recv_iov, 1);
+
+    rcvid = MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL);
+
+    if (rcvid == 0 && pulse.code == MERKLE_PULSE_CODE) {
+        result_val = (uint32_t)pulse.value.sival_int;
+        is_valid = IS_INTEGRITY_OK(result_val);
+        corrupt_mask = GET_CORRUPT_MASK(result_val);
+
+        printf("{\"status\": \"%s\", \"mask\": %u}\n",
                is_valid ? "VALID" : "CORRUPTED", corrupt_mask);
-    } else {
-        printf("{\"status\":\"ERROR\",\"message\":\"Unexpected pulse code\"}\n");
-        status = -1;
     }
 
-    MsgUnregisterEvent(&event, coid_server);
-    name_close(coid_server);
+    MsgUnregisterEvent(&header.event);
+    name_close(server_coid);
     ConnectDetach(coid_local);
     ChannelDestroy(chid);
-    return status == -1 ? EXIT_FAILURE : EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
