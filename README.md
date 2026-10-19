@@ -100,23 +100,3 @@ Set the connection variables in your shell before launching the GUI. For example
 Change the host and username to match your target. The password is read from the environment and is not stored in the Python source. Do not commit real passwords, private keys, or populated environment files. Root SSH login and automatic host-key acceptance are suitable only for a controlled lab demonstration; production deployments should use a dedicated account and verified host keys.
 
 The GUI generates a 64 KiB image filled with 0x01. Each selected 4 KiB block is marked by changing its first byte to 0xFF. The GUI streams the image to /tmp/update.bin over SSH and runs the client, then parses the returned JSON and displays the result.
-
-## Current Implementation Limitations
-
-- The corruption mask identifies blocks by checking the first byte of each block against the 0x01 test pattern. Changes elsewhere in a block may cause a root mismatch without setting the corresponding mask bit.
-- Header metadata fields are not fully populated or validated.
-- Not every QNX API return value is checked, and the full 10-second connection retry behavior described in the requirements is not implemented.
-- The server sends the completion event before the synchronous reply, so the client remains blocked while hashing is in progress.
-- The golden root, payload size and block geometry are compile-time constants.
-
-## Team
-
-The submitted report lists the following contributors:
-
-- K A Vignesvaran — CB.EN.U4ELC23021
-- Kiruthik Pranav T A — CB.EN.U4ELC23023
-- Vidhyarth S E — CB.EN.U4ELC23057
-
-## License
-
-See LICENSE. Confirm that all project contributors and any applicable course/institution rules permit public redistribution under the selected license.
