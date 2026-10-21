@@ -15,7 +15,7 @@
  *                      Kiruthick Pranav  - CB.EN.U4ELC23023
  *                      Vidhyarth S E     - CB.EN.U4ELC23057
  * Course             : 26ELC331 Real Time Operating System using QNX
- * Date of Evaluation : 17 October 2026
+ * 
  * ===========================================================================
  */
 
